@@ -1,5 +1,5 @@
 import telebot;
-bot = telebot.TeleBot('%840051101:AAHGbhSbFgjtUKaZrePrL3Q2uTYv2MoO2Us%');
+bot = telebot.TeleBot('token');
 @bot.message_handler(content_types=['text', 'document', 'audio'])
 if message.text == "Привет":
     bot.send_message(message.from_user.id, "Привет, чем я могу тебе помочь?")
