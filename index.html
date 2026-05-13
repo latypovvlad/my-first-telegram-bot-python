@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ozon Job Clone - Поиск работы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #005bff 0%, #0040b8 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-section input,
+        .search-section select {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-section input:focus,
+        .search-section select:focus {
+            outline: none;
+            border-color: #005bff;
+        }
+
+        .search-section button {
+            padding: 12px 30px;
+            background-color: #005bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .search-section button:hover {
+            background-color: #0040b8;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .job-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .job-card h3 {
+            color: #005bff;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .job-card .company {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .job-card .salary {
+            background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .job-card .location,
+        .job-card .type {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .job-card .description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .job-card .apply-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #005bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .job-card .apply-btn:hover {
+            background-color: #0040b8;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00c853 0%, #009624 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        .no-jobs {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #005bff;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>💼 Ozon Job Clone</h1>
+            <p>Найдите работу своей мечты прямо сейчас</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="search-section">
+            <input type="text" id="searchLocation" placeholder="Город (например: Москва)">
+            <select id="searchType">
+                <option value="">Все типы занятости</option>
+                <option value="Full-time">Полная занятость</option>
+                <option value="Part-time">Частичная занятость</option>
+                <option value="Remote">Удаленная работа</option>
+            </select>
+            <button onclick="searchJobs()">🔍 Найти вакансии</button>
+        </div>
+
+        <div id="jobsContainer" class="jobs-grid">
+            <div class="loading">Загрузка вакансий...</div>
+        </div>
+    </div>
+
+    <!-- Modal for Application -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 20px; color: #005bff;">Откликнуться на вакансию</h2>
+            <form id="applicationForm" onsubmit="submitApplication(event)">
+                <input type="hidden" id="jobId">
+                <div class="form-group">
+                    <label for="applicantName">Ваше имя *</label>
+                    <input type="text" id="applicantName" required>
+                </div>
+                <div class="form-group">
+                    <label for="applicantContact">Контакты (email/телефон) *</label>
+                    <input type="text" id="applicantContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="resumeText">О себе и опыт работы *</label>
+                    <textarea id="resumeText" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">📤 Отправить отклик</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000/api';
+
+        // Загрузка вакансий при старте
+        document.addEventListener('DOMContentLoaded', () => {
+            loadJobs();
+        });
+
+        async function loadJobs(location = '', jobType = '') {
+            const container = document.getElementById('jobsContainer');
+            container.innerHTML = '<div class="loading">Загрузка вакансий...</div>';
+
+            try {
+                let url = `${API_URL}/jobs?`;
+                if (location) url += `location=${encodeURIComponent(location)}&`;
+                if (jobType) url += `job_type=${encodeURIComponent(jobType)}`;
+
+                const response = await fetch(url);
+                const jobs = await response.json();
+
+                if (jobs.length === 0) {
+                    container.innerHTML = '<div class="no-jobs">😔 Вакансии не найдены. Попробуйте изменить параметры поиска.</div>';
+                    return;
+                }
+
+                container.innerHTML = jobs.map(job => `
+                    <div class="job-card">
+                        <h3>${escapeHtml(job.title)}</h3>
+                        <div class="company">${escapeHtml(job.company)}</div>
+                        <div class="salary">${formatSalary(job.salary_min)} - ${formatSalary(job.salary_max)} ₽</div>
+                        <div>
+                            <span class="location">📍 ${escapeHtml(job.location)}</span>
+                            <span class="type">${getTypeLabel(job.type)}</span>
+                        </div>
+                        <p class="description">${escapeHtml(job.description)}</p>
+                        <button class="apply-btn" onclick="openApplicationModal('${job.id}')">Откликнуться</button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                container.innerHTML = '<div class="no-jobs">⚠️ Ошибка загрузки вакансий. Убедитесь, что сервер запущен.</div>';
+            }
+        }
+
+        function searchJobs() {
+            const location = document.getElementById('searchLocation').value.trim();
+            const jobType = document.getElementById('searchType').value;
+            loadJobs(location, jobType);
+        }
+
+        function formatSalary(amount) {
+            return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'Full-time': '🕐 Полная занятость',
+                'Part-time': '⏰ Частичная занятость',
+                'Remote': '🏠 Удаленная работа'
+            };
+            return labels[type] || type;
+        }
+
+        function openApplicationModal(jobId) {
+            document.getElementById('jobId').value = jobId;
+            document.getElementById('applicationModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('applicationModal').style.display = 'none';
+            document.getElementById('applicationForm').reset();
+        }
+
+        async function submitApplication(event) {
+            event.preventDefault();
+            
+            const applicationData = {
+                job_id: document.getElementById('jobId').value,
+                applicant_name: document.getElementById('applicantName').value,
+                applicant_contact: document.getElementById('applicantContact').value,
+                resume_text: document.getElementById('resumeText').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/applications`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(applicationData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Ваш отклик успешно отправлен! Мы свяжемся с вами в ближайшее время.');
+                    closeModal();
+                } else {
+                    const error = await response.json();
+                    alert(`❌ Ошибка: ${error.detail}`);
+                }
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                alert('⚠️ Ошибка отправки отклика. Проверьте подключение к серверу.');
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('applicationModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
