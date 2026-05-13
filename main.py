@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 import uuid
+import os
 
 app = FastAPI(title="Ozon Job Clone API")
 
@@ -15,6 +17,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Статические файлы и главная страница ---
+
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    """Отдаёт главную страницу приложения"""
+    index_path = os.path.join(os.path.dirname(__file__), "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    raise HTTPException(status_code=404, detail="index.html не найден")
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Заглушка для favicon"""
+    raise HTTPException(status_code=404, detail="Favicon не найден")
 
 # --- Модели данных ---
 
